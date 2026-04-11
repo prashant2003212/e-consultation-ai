@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="fw-bold mb-3">Dashboard</h2>
+
+<form method="get" action="/dashboard">
+    <label>Select Draft:</label>
+    <select name="draft" class="form-select" style="max-width:300px;" onchange="this.form.submit()">
+        <option value="">All Drafts</option>
+        {% for d in drafts %}
+        <option value="{{ d.title }}" {% if selected == d.title %}selected{% endif %}>
+            {{ d.title }}
+        </option>
+        {% endfor %}
+    </select>
+</form>
+
+<hr>
+
+<h4>All Comments</h4>
+
+<table class="table table-bordered mt-3 bg-white">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Draft</th>
+            <th>Mobile</th>
+            <th>Sentiment</th>
+            <th>Comment</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for c in comments %}
+        <tr>
+            <td>{{ c.Name }}</td>
+            <td>{{ c.Draft }}</td>
+            <td>{{ c.Mobile }}</td>
+
+            <td>
+                {% if c.Sentiment == "Positive" %}
+                <span class="badge bg-success">Positive</span>
+
+                {% elif c.Sentiment == "Negative" %}
+                <span class="badge bg-danger">Negative</span>
+
+                {% else %}
+                <span class="badge bg-secondary">Neutral</span>
+                {% endif %}
+            </td>
+
+            <td>{{ c.Comment }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/analyze{% if selected %}?draft={{selected}}{% endif %}" class="btn btn-primary mt-3">
+    Start Analysis →
+</a>
+
+{% endblock %}

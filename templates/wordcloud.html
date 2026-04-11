@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="fw-bold mb-3">Word Cloud</h2>
+
+{% if image_url %}
+<div class="text-center">
+    <img src="{{ image_url }}" class="img-fluid shadow rounded" style="max-width: 90%;">
+</div>
+{% else %}
+<p>No comments found to generate word cloud.</p>
+{% endif %}
+
+{% endblock %}

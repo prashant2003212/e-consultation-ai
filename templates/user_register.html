@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>User Register - MCA eConsultation</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family: "Inter","Segoe UI",sans-serif;
+
+  background:
+    radial-gradient(circle at 20% 20%, #092d47 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, #042940 0%, transparent 40%),
+    linear-gradient(135deg,#11566b,#1e293b);
+  background-attachment: fixed;
+  color:white;
+}
+
+.card{
+  width:420px;
+  padding:40px;
+
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(25px);
+
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,0.25);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.title{
+  font-size:26px;
+  font-weight:700;
+  text-align:center;
+  background: linear-gradient(90deg,#ffffff,#a5b4fc);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.form-control{
+  background: rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.3);
+  color:white;
+  border-radius:14px;
+}
+
+.btn-main{
+  width:100%;
+  margin-top:12px;
+  padding:12px;
+  border-radius:14px;
+  background: linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:white;
+  border:none;
+}
+
+.btn-main:hover{
+  transform:translateY(-3px);
+}
+
+.alert{
+  background: rgba(255,255,255,0.15);
+  color:white;
+  border:none;
+}
+
+video{
+  width:100%;
+  border-radius:12px;
+  margin-top:10px;
+}
+
+canvas{
+  display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="title">User Register</div>
+
+  <div id="flash"></div>
+
+  <!-- INPUTS -->
+  <input id="name" class="form-control mb-2" placeholder="Your Name">
+  <input id="mobile" class="form-control mb-2" placeholder="+91XXXXXXXXXX">
+  <input type="password" id="password" class="form-control mb-2" placeholder="Create Password">
+
+  <!-- CAMERA -->
+  <video id="video" autoplay></video>
+  <button class="btn-main" onclick="capture()">Capture Photo</button>
+  <canvas id="canvas"></canvas>
+
+  <!-- REGISTER -->
+  <button class="btn-main" onclick="register()">Register</button>
+
+  <div class="text-center mt-3">
+    <a href="/login" class="text-light">Already have account? Login</a>
+  </div>
+
+</div>
+
+<script>
+
+// CAMERA START
+navigator.mediaDevices.getUserMedia({ video:true })
+.then(stream=>{
+  document.getElementById("video").srcObject = stream;
+})
+.catch(()=>{
+  show("Camera permission denied","danger");
+});
+
+// CAPTURE IMAGE
+function capture(){
+  const canvas = document.getElementById("canvas");
+  const video = document.getElementById("video");
+
+  canvas.width = 300;
+  canvas.height = 300;
+
+  canvas.getContext("2d").drawImage(video, 0, 0, 300, 300);
+
+  alert("Photo Captured ✅");
+}
+
+// FLASH MESSAGE
+function show(msg,type="info"){
+  document.getElementById("flash").innerHTML =
+    `<div class="alert alert-${type} mt-2">${msg}</div>`;
+}
+
+// REGISTER FUNCTION
+function register(){
+  const name = document.getElementById("name").value;
+  const mobile = document.getElementById("mobile").value;
+  const password = document.getElementById("password").value;
+
+  const canvas = document.getElementById("canvas");
+
+  // ✅ CHECK IMAGE CAPTURE
+  if(canvas.width === 0){
+    show("Please capture photo first","danger");
+    return;
+  }
+
+  const image = canvas.toDataURL("image/png",0.6);
+
+  const form = new FormData();
+  form.append("name", name);
+  form.append("mobile", mobile);
+  form.append("password", password);
+  form.append("image", image);
+
+  fetch("/register-user", {method:"POST", body:form})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.status==="success"){
+      show("Registered Successfully","success");
+      setTimeout(()=>window.location.href="/login",1500);
+    }
+    else show(d.message,"danger");
+  });
+}
+
+</script>
+
+</body>
+</html>

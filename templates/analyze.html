@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2 class="fw-bold mb-4">Sentiment Analysis</h2>
+
+
+<div class="row mb-4">
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3">
+            <h5>Total Comments</h5>
+            <h3 class="text-primary">{{ pos + neg + neu }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3">
+            <h5>Positive</h5>
+            <h3 class="text-success">{{ pos }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3">
+            <h5>Negative</h5>
+            <h3 class="text-danger">{{ neg }}</h3>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm p-3">
+            <h5>Neutral</h5>
+            <h3 class="text-warning">{{ neu }}</h3>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <canvas id="pieChart"></canvas>
+    </div>
+
+    <div class="col-md-6">
+        <canvas id="barChart"></canvas>
+    </div>
+</div>
+
+<hr>
+
+<h4>Comment-wise Analysis</h4>
+<table class="table bg-white table-bordered">
+    <thead>
+        <tr>
+            <th>Comment</th>
+            <th>Sentiment</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in comments %}
+        <tr>
+            <td>{{ c.Comment }}</td>
+            <td>{{ c.Sentiment }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// PIE CHART
+new Chart(document.getElementById("pieChart"), {
+    type: 'pie',
+    data: {
+        labels: ['Positive', 'Negative', 'Neutral'],
+        datasets: [{
+            data: [
+                {{ pos|default(0) }},
+                {{ neg|default(0) }},
+                {{ neu|default(0) }}
+            ]
+        }]
+    }
+});
+
+// BAR CHART
+new Chart(document.getElementById("barChart"), {
+    type: 'bar',
+    data: {
+        labels: ['Positive', 'Negative', 'Neutral'],
+        datasets: [{
+            data: [
+                {{ pos|default(0) }},
+                {{ neg|default(0) }},
+                {{ neu|default(0) }}
+            ]
+        }]
+    }
+});
+</script>
+
+{% endblock %}

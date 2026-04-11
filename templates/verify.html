@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Verify Mobile - MCA eConsultation</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<style>
+
+body{
+  font-family: "Inter","Segoe UI",sans-serif;
+  margin:0;
+  padding:0;
+  min-height:100vh;
+
+  background:
+    radial-gradient(circle at 20% 20%, #092d47 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, #042940 0%, transparent 40%),
+    linear-gradient(135deg,#11566b,#1e293b);
+
+  background-attachment: fixed;
+  color:#fff;
+}
+
+
+.navbar{
+  background: rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+}
+
+.navbar-brand{
+  font-weight:700;
+  background: linear-gradient(90deg,#fff,#c7d2fe);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+
+.verify-wrapper{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  padding-top:90px;
+}
+
+
+.verify-card{
+  width:420px;
+  padding:35px;
+
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,0.25);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+
+  animation: fadeIn .6s ease;
+}
+
+
+.verify-title{
+  font-size:26px;
+  font-weight:700;
+  text-align:center;
+  background: linear-gradient(90deg,#ffffff,#a5b4fc);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.verify-sub{
+  text-align:center;
+  color:#cbd5e1;
+  margin-bottom:20px;
+}
+
+
+.form-control{
+  background: rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.3);
+  color:#fff;
+  border-radius:14px;
+  padding:12px;
+}
+
+.form-control:focus{
+  background: rgba(255,255,255,0.2);
+  border-color:#6366f1;
+  box-shadow:0 0 15px rgba(99,102,241,0.5);
+  color:#fff;
+}
+
+
+.btn-send,
+.btn-verify{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  font-weight:600;
+  border:none;
+  margin-top:12px;
+  transition:.3s ease;
+}
+
+
+.btn-send{
+  background: linear-gradient(135deg,#4f46e5,#7c3aed);
+  box-shadow:0 10px 30px rgba(79,70,229,0.5);
+  color:white;
+}
+
+.btn-send:hover{
+  transform:translateY(-3px);
+  box-shadow:0 15px 45px rgba(79,70,229,0.7);
+}
+
+.btn-verify{
+  background: linear-gradient(135deg,#06b6d4,#3b82f6);
+  box-shadow:0 10px 30px rgba(6,182,212,0.5);
+  color:white;
+}
+
+.btn-verify:hover{
+  transform:translateY(-3px);
+  box-shadow:0 15px 45px rgba(6,182,212,0.7);
+}
+
+.alert{
+  border-radius:12px;
+}
+
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(25px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+</style>
+<body>
+<nav class="navbar shadow-sm fixed-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="/">MCA - eConsultation</a>
+  </div>
+</nav>
+
+<div class="verify-wrapper">
+  <div class="verify-card app-card fade-in-up">
+    <div class="verify-title">Verify Your Mobile</div>
+    <div class="verify-sub">Draft: <strong>{{ draft }}</strong></div>
+
+    <div id="flash"></div>
+
+    <label class="form-label">Mobile Number</label>
+    <input id="mobile" class="form-control" placeholder="+919XXXXXXXXX">
+
+    <button class="btn-send mt-2" id="sendBtn">Send OTP</button>
+
+    <label class="form-label mt-3">Enter OTP</label>
+    <input id="otp" class="form-control" placeholder="Enter OTP">
+
+    <button class="btn-verify" id="verifyBtn">Verify & Continue</button>
+  </div>
+</div>
+
+<script>
+function show(msg, type="info"){
+  document.getElementById("flash").innerHTML =
+    `<div class="alert alert-${type} mt-2">${msg}</div>`;
+}
+
+document.getElementById("sendBtn").onclick = function () {
+  const mobile = document.getElementById("mobile").value;
+  if (!mobile) return show("Please enter mobile number", "danger");
+  const form = new FormData(); form.append("mobile", mobile);
+  show("Sending OTP...", "primary");
+  fetch("/send-otp", { method: "POST", body: form })
+    .then(r => r.json())
+    .then(d => {
+      if (d.status === "success") show("OTP sent successfully!", "success");
+      else show(d.message || "OTP send failed", "danger");
+    }).catch(e => show("Network error", "danger"));
+};
+
+document.getElementById("verifyBtn").onclick = function () {
+  const otp = document.getElementById("otp").value;
+  const mobile = document.getElementById("mobile").value;
+  if (!otp) return show("Enter OTP", "danger");
+  const form = new FormData();
+  form.append("otp", otp); form.append("mobile", mobile); form.append("draft", "{{ draft }}");
+
+  fetch("/verify-otp", { method: "POST", body: form })
+    .then(r => r.json())
+    .then(d => {
+      if (d.status === "success") window.location.href = d.redirect;
+      else show(d.message || "Verification failed", "danger");
+    }).catch(e => show("Network error", "danger"));
+};
+</script>
+</body>
+</html>
