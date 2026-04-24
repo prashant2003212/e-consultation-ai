@@ -134,15 +134,8 @@ USERS_FILE = "users.csv"
 
 def ensure_users_file():
     if not os.path.exists(USERS_FILE):
-        pd.DataFrame(columns=["Name","Mobile","Password","Image"]).to_csv(USERS_FILE, index=False)
-    else:
-        df = pd.read_csv(USERS_FILE)
+        pd.DataFrame(columns=["Name","Mobile","Email"]).to_csv(USERS_FILE, index=False)
 
-        for col in ["Name","Mobile","Password","Image"]:
-            if col not in df.columns:
-                df[col] = ""
-
-        df.to_csv(USERS_FILE, index=False)
 def ensure_comments_file():
     """Create comments file with the full columns if missing."""
     if not os.path.exists(COMMENTS_FILE):
@@ -199,6 +192,13 @@ def load_saved_model():
     return None
 
 # ---------- ROUTES ----------
+
+@app.before_request
+def clear_session_on_restart():
+    if not session.get("initialized"):
+        session.clear()
+        session["initialized"] = True
+
 @app.route("/")
 def home():
     return render_template("drafts.html", drafts=DRAFTS)
@@ -571,99 +571,117 @@ def register_page():
 def register_user():
     name = request.form.get("name")
     mobile = request.form.get("mobile")
-    password = request.form.get("password")
-    image = request.form.get("image")
+    email = request.form.get("email")
 
     ensure_users_file()
-
     df = pd.read_csv(USERS_FILE)
 
+    # check duplicate
     if mobile in df["Mobile"].astype(str).values:
-        return jsonify({"status":"error","message":"User already exists"})
+        return jsonify({"status":"exists","message":"User already exists"})
 
-    # Save image
-    
-    import base64
-    os.makedirs("static/profile", exist_ok=True)
-    img_path = f"static/profile/{mobile}.png"
-    img_data = image.split(",")[1]
-    with open(img_path,"wb") as f:
-        f.write(base64.b64decode(img_data))
+    # save temp user (NOT permanent)
+    session["temp_user"] = {
+        "Name": name,
+        "Mobile": mobile,
+        "Email": email
+    }
 
-    new = pd.DataFrame([{
-        "Name":name,
-        "Mobile":mobile,
-        "Password":password,
-        "Image":img_path
-    }])
+    # 🔥 SEND OTP
+    url = f"https://2factor.in/API/V1/{TWO_FACTOR_API_KEY}/SMS/{mobile}/AUTOGEN/OTP1"
+    res = requests.get(url).json()
 
-    new.to_csv(USERS_FILE, mode="a", header=False, index=False)
+    if res.get("Status") == "Success":
+        session["OTP_SESSION_ID"] = res.get("Details")
+        return jsonify({"status":"otp_sent"})
 
-    return jsonify({"status":"success"})
+    return jsonify({"status":"error","message":"OTP failed"})
 
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET"])
 def login_page():
-    if request.method == "POST":
-        mobile = request.form.get("mobile")
-        password = request.form.get("password")
-
-        df = pd.read_csv(USERS_FILE)
-
-        user = df[(df["Mobile"].astype(str)==mobile) & (df["Password"]==password)]
-
-        if not user.empty:
-            session["user"] = mobile
-            return redirect("/")
-        else:
-            flash("Invalid credentials","danger")
-
     return render_template("user_login.html")
 
-@app.route("/verify-user-otp", methods=["POST"])
-def verify_user_otp():
+@app.route("/verify-register-otp", methods=["POST"])
+def verify_register_otp():
     otp = request.form.get("otp")
-    name = request.form.get("name")
-    mobile = request.form.get("mobile")
-
     sid = session.get("OTP_SESSION_ID")
-    if not sid:
-        return jsonify({"status":"error","message":"Session expired"}),400
 
     url = f"https://2factor.in/API/V1/{TWO_FACTOR_API_KEY}/SMS/VERIFY/{sid}/{otp}"
     res = requests.get(url).json()
 
     if res.get("Status") == "Success":
-        ensure_users_file()
+        user = session.get("temp_user")
 
         df = pd.read_csv(USERS_FILE)
+        new = pd.DataFrame([user])
+        new.to_csv(USERS_FILE, mode="a", header=False, index=False)
 
-        if mobile not in df["Mobile"].astype(str).values:
-            new = pd.DataFrame([{"Name":name,"Mobile":mobile}])
-            new.to_csv(USERS_FILE, mode="a", header=False, index=False)
-
-        session["user"] = mobile
+        session["user"] = user["Mobile"]
+        session.pop("temp_user", None)
 
         return jsonify({"status":"success","redirect":"/"})
-    
-    return jsonify({"status":"error","message":"Invalid OTP"}),400
+
+    return jsonify({"status":"error","message":"Invalid OTP"})
+@app.route("/send-login-otp", methods=["POST"])
+def send_login_otp():
+    mobile = request.form.get("mobile")
+
+    df = pd.read_csv(USERS_FILE)
+
+    if mobile not in df["Mobile"].astype(str).values:
+        return jsonify({"status":"error","message":"User not registered"})
+
+    url = f"https://2factor.in/API/V1/{TWO_FACTOR_API_KEY}/SMS/{mobile}/AUTOGEN/OTP1"
+    res = requests.get(url).json()
+
+    if res.get("Status") == "Success":
+        session["OTP_SESSION_ID"] = res.get("Details")
+        session["login_mobile"] = mobile
+        return jsonify({"status":"success"})
+
+    return jsonify({"status":"error"})
+
+@app.route("/resend-otp", methods=["POST"])
+def resend_otp():
+    mobile = None
+
+    # 🔥 check from temp user (registration case)
+    if session.get("temp_user"):
+        mobile = session["temp_user"]["Mobile"]
+
+    # fallback (login case future use)
+    elif session.get("login_mobile"):
+        mobile = session.get("login_mobile")
+
+    if not mobile:
+        return jsonify({"status":"error","message":"Session expired"}), 400
+
+    url = f"https://2factor.in/API/V1/{TWO_FACTOR_API_KEY}/SMS/{mobile}/AUTOGEN/OTP1"
+
+    try:
+        res = requests.get(url).json()
+    except:
+        return jsonify({"status":"error","message":"OTP service error"}), 500
+
+    if res.get("Status") == "Success":
+        session["OTP_SESSION_ID"] = res.get("Details")
+        return jsonify({"status":"success","message":"OTP resent successfully"})
+
+    return jsonify({"status":"error","message":"Failed to resend OTP"})
 
 @app.route("/login-verify", methods=["POST"])
 def login_verify():
     otp = request.form.get("otp")
-    mobile = request.form.get("mobile")
-
     sid = session.get("OTP_SESSION_ID")
-    if not sid:
-        return jsonify({"status":"error","message":"Session expired"}),400
 
     url = f"https://2factor.in/API/V1/{TWO_FACTOR_API_KEY}/SMS/VERIFY/{sid}/{otp}"
     res = requests.get(url).json()
 
     if res.get("Status") == "Success":
-        session["user"] = mobile
+        session["user"] = session.get("login_mobile")
         return jsonify({"status":"success","redirect":"/"})
-    
-    return jsonify({"status":"error","message":"Invalid OTP"}),400
+
+    return jsonify({"status":"error","message":"Invalid OTP"})
 
 @app.route("/logout")
 def logout():
@@ -681,21 +699,19 @@ def user_profile():
     df = pd.read_csv(USERS_FILE)
     comments_df = pd.read_csv(COMMENTS_FILE)
 
-    user = df[df["Mobile"].astype(str)==mobile]
+    user = df[df["Mobile"].astype(str) == mobile]
 
     if user.empty:
-       flash("User not found","danger")
-       return redirect("/login")
+        flash("User not found","danger")
+        return redirect("/login")
 
     name = user["Name"].values[0]
-    image = user["Image"].values[0]
 
-    user_comments = comments_df[comments_df["Mobile"].astype(str)==mobile]
+    user_comments = comments_df[comments_df["Mobile"].astype(str) == mobile]
 
     return render_template("profile.html",
                            name=name,
                            mobile=mobile,
-                           image=image,
                            comments=user_comments.to_dict(orient="records"))
 
 # ---------- RUN ----------

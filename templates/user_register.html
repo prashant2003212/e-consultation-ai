@@ -8,65 +8,74 @@
 
 <style>
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;   /* horizontal center */
+  align-items: center;       /* vertical center */
+
   font-family: "Inter","Segoe UI",sans-serif;
+  color: white;
 
   background:
-    radial-gradient(circle at 20% 20%, #092d47 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, #042940 0%, transparent 40%),
-    linear-gradient(135deg,#11566b,#1e293b);
+    radial-gradient(circle at 20% 30%, rgba(99,102,241,0.25), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(168,85,247,0.25), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(14,165,233,0.15), transparent 60%),
+    linear-gradient(135deg, #020617, #0f172a, #020617);
+
   background-attachment: fixed;
-  color:white;
 }
 
-.card{
-  width:420px;
-  padding:40px;
-
-  background: rgba(255,255,255,0.12);
+.card {
+  width: 420px;
+  height: 400px;
+  padding: 40px;
+  margin: auto;
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(25px);
 
-  border-radius:24px;
-  border:1px solid rgba(255,255,255,0.25);
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.1);
 
   box-shadow:
-    0 20px 60px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.3);
+    0 20px 80px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
-.title{
-  font-size:26px;
-  font-weight:700;
-  text-align:center;
-  background: linear-gradient(90deg,#ffffff,#a5b4fc);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+.title {
+  font-size: 40px;
+  font-weight: 700;
+  text-align: center;
+  background: linear-gradient(90deg, #ffffff, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .form-control{
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.7);
   border:1px solid rgba(255,255,255,0.3);
   color:white;
   border-radius:14px;
 }
 
-.btn-main{
-  width:100%;
-  margin-top:12px;
-  padding:12px;
-  border-radius:14px;
-  background: linear-gradient(135deg,#4f46e5,#7c3aed);
-  color:white;
-  border:none;
+.btn-main {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  border: none;
+  color: white;
+
+  transition: 0.3s;
 }
 
-.btn-main:hover{
-  transform:translateY(-3px);
+.btn-main:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(99,102,241,0.5);
 }
 
 .alert{
@@ -97,47 +106,26 @@ canvas{
   <div id="flash"></div>
 
   <!-- INPUTS -->
-  <input id="name" class="form-control mb-2" placeholder="Your Name">
-  <input id="mobile" class="form-control mb-2" placeholder="+91XXXXXXXXXX">
-  <input type="password" id="password" class="form-control mb-2" placeholder="Create Password">
+<input id="name" class="form-control mb-2" placeholder="Full Name">
+<input id="mobile" class="form-control mb-2" placeholder="+91XXXXXXXXXX">
+<input id="email" class="form-control mb-2" placeholder="Email">
 
-  <!-- CAMERA -->
-  <video id="video" autoplay></video>
-  <button class="btn-main" onclick="capture()">Capture Photo</button>
-  <canvas id="canvas"></canvas>
+<button class="btn-main" onclick="register()">Register</button>
+<div id="otpBox" style="display:none;">
+  <input id="otp" class="form-control mt-3" placeholder="Enter OTP">
 
-  <!-- REGISTER -->
-  <button class="btn-main" onclick="register()">Register</button>
+  <button class="btn-main" onclick="verifyOtp()">Verify OTP</button>
 
-  <div class="text-center mt-3">
-    <a href="/login" class="text-light">Already have account? Login</a>
-  </div>
+  <!-- 🔥 NEW RESEND BUTTON -->
+  <button class="btn btn-outline-light mt-2 w-100" onclick="resendOtp()" id="resendBtn">
+    Resend OTP
+  </button>
 
+  <small id="timerText" class="text-light d-block text-center mt-2"></small>
 </div>
 
 <script>
 
-// CAMERA START
-navigator.mediaDevices.getUserMedia({ video:true })
-.then(stream=>{
-  document.getElementById("video").srcObject = stream;
-})
-.catch(()=>{
-  show("Camera permission denied","danger");
-});
-
-// CAPTURE IMAGE
-function capture(){
-  const canvas = document.getElementById("canvas");
-  const video = document.getElementById("video");
-
-  canvas.width = 300;
-  canvas.height = 300;
-
-  canvas.getContext("2d").drawImage(video, 0, 0, 300, 300);
-
-  alert("Photo Captured ✅");
-}
 
 // FLASH MESSAGE
 function show(msg,type="info"){
@@ -147,37 +135,99 @@ function show(msg,type="info"){
 
 // REGISTER FUNCTION
 function register(){
+
   const name = document.getElementById("name").value;
   const mobile = document.getElementById("mobile").value;
-  const password = document.getElementById("password").value;
-
-  const canvas = document.getElementById("canvas");
-
-  // ✅ CHECK IMAGE CAPTURE
-  if(canvas.width === 0){
-    show("Please capture photo first","danger");
-    return;
-  }
-
-  const image = canvas.toDataURL("image/png",0.6);
+  const email = document.getElementById("email").value;
 
   const form = new FormData();
   form.append("name", name);
   form.append("mobile", mobile);
-  form.append("password", password);
-  form.append("image", image);
+  form.append("email", email);
 
-  fetch("/register-user", {method:"POST", body:form})
+  fetch("/register-user", {
+    method:"POST",
+    body:form
+  })
   .then(r=>r.json())
   .then(d=>{
-    if(d.status==="success"){
-      show("Registered Successfully","success");
+    if(d.status==="otp_sent"){
+      show("OTP sent to your mobile","success");
+
+      // 🔥 show OTP box
+      document.getElementById("otpBox").style.display = "block";
+      startTimer();
+    }
+    else if(d.status==="exists"){
+      show("Already registered, redirecting to login...","warning");
       setTimeout(()=>window.location.href="/login",1500);
     }
-    else show(d.message,"danger");
+    else{
+      show(d.message,"danger");
+    }
   });
 }
 
+function openOtpPopup(){
+  document.getElementById("otpBox").style.display = "block";
+}
+
+function startTimer(){
+  let time = 30;
+  const btn = document.getElementById("resendBtn");
+  const text = document.getElementById("timerText");
+
+  btn.disabled = true;
+
+  const interval = setInterval(()=>{
+    text.innerText = `Resend OTP in ${time}s`;
+    time--;
+
+    if(time < 0){
+      clearInterval(interval);
+      text.innerText = "";
+      btn.disabled = false;
+    }
+  },1000);
+}
+function verifyOtp(){
+  const otp = document.getElementById("otp").value;
+
+  const form = new FormData();
+  form.append("otp", otp);
+
+  fetch("/verify-register-otp", {
+    method:"POST",
+    body:form
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.status==="success"){
+      show("Registration Successful ✅","success");
+      window.location.href = "/";
+    }else{
+      show(d.message,"danger");
+    }
+  });
+}
+
+function resendOtp(){
+  const btn = document.getElementById("resendBtn");
+
+  btn.disabled = true;
+
+  fetch("/resend-otp", {method:"POST"})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.status==="success"){
+      show("OTP resent successfully","success");
+      startTimer(); // restart timer
+    }else{
+      show(d.message,"danger");
+      btn.disabled = false;
+    }
+  });
+}
 </script>
 
 </body>

@@ -9,39 +9,51 @@
 <style>
 
 /* SAME STYLE AS REGISTER */
+/* SAME AS REGISTER PAGE */
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   font-family: "Inter","Segoe UI",sans-serif;
+  color: white;
 
   background:
-    radial-gradient(circle at 20% 20%, #092d47 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, #042940 0%, transparent 40%),
-    linear-gradient(135deg,#11566b,#1e293b);
-  color:white;
+    radial-gradient(circle at 20% 30%, rgba(99,102,241,0.25), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(168,85,247,0.25), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(14,165,233,0.15), transparent 60%),
+    linear-gradient(135deg, #020617, #0f172a, #020617);
+
+  background-attachment: fixed;
 }
 
-.card{
-  width:420px;
-  padding:40px;
-  background: rgba(255,255,255,0.12);
+.card {
+  width: 420px;
+  padding: 40px;
+
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(25px);
-  border-radius:24px;
-  border:1px solid rgba(255,255,255,0.25);
-  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.1);
+
+  box-shadow:
+    0 20px 80px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
-.title{
-  font-size:26px;
-  font-weight:700;
-  text-align:center;
-  background: linear-gradient(90deg,#ffffff,#a5b4fc);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+.title {
+  font-size: 40px;
+  font-weight: 700;
+  text-align: center;
+
+  background: linear-gradient(90deg, #ffffff, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .form-control{
@@ -51,21 +63,34 @@ body{
   border-radius:14px;
 }
 
-.btn-main{
-  width:100%;
-  margin-top:12px;
-  padding:12px;
-  border-radius:14px;
-  background: linear-gradient(135deg,#4f46e5,#7c3aed);
-  color:white;
-  border:none;
+/* 🔥 placeholder fix */
+::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+
+.btn-main {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  border: none;
+  color: white;
+
+  transition: 0.3s;
+}
+
+.btn-main:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(99,102,241,0.5);
 }
 
 .alert{
   background: rgba(255,255,255,0.15);
   color:white;
+  border:none;
 }
-
 </style>
 </head>
 
@@ -99,14 +124,18 @@ function show(msg,type="info"){
 
 function sendOTP(){
   const mobile = document.getElementById("mobile").value;
+
   const form = new FormData();
   form.append("mobile", mobile);
 
-  fetch("/send-otp",{method:"POST",body:form})
+  fetch("/send-login-otp", {   // ✅ YAHI CHANGE HAI
+    method:"POST",
+    body:form
+  })
   .then(r=>r.json())
   .then(d=>{
     if(d.status==="success") show("OTP Sent","success");
-    else show("Error sending OTP","danger");
+    else show(d.message,"danger");
   });
 }
 

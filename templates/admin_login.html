@@ -8,108 +8,131 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
+/* ============================= */
+/* SAME BACKGROUND AS REGISTER */
+/* ============================= */
+body {
+margin: 0;
+min-height: 100vh;
 
+display: flex;
+justify-content: center;
+align-items: center;
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-family: "Inter","Segoe UI",sans-serif;
+font-family: "Inter","Segoe UI",sans-serif;
+color: white;
 
-  background:
-    radial-gradient(circle at 20% 20%, #092d47 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, #042940 0%, transparent 40%),
-    linear-gradient(135deg,#11566b,#1e293b);
-  background-attachment: fixed;
-  color:white;
+background:
+radial-gradient(circle at 20% 30%, rgba(99,102,241,0.25), transparent 40%),
+radial-gradient(circle at 80% 70%, rgba(168,85,247,0.25), transparent 40%),
+radial-gradient(circle at 50% 50%, rgba(14,165,233,0.15), transparent 60%),
+linear-gradient(135deg, #020617, #0f172a, #020617);
+
+background-attachment: fixed;
 }
 
-
+/* ============================= */
+/* GLASS CARD */
+/* ============================= */
 .admin-card{
-  width:420px;
-  padding:40px;
+width:420px;
+padding:40px;
 
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(25px);
 
-  border-radius:24px;
-  border:1px solid rgba(255,255,255,0.25);
+border-radius:24px;
+border:1px solid rgba(255,255,255,0.1);
 
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.3);
+box-shadow:
+0 20px 80px rgba(0,0,0,0.7),
+inset 0 1px 0 rgba(255,255,255,0.1);
 
-  animation: fadeIn .6s ease;
+animation: fadeIn .6s ease;
 }
 
-
+/* ============================= */
+/* TITLE */
+/* ============================= */
 .title{
-  font-size:26px;
-  font-weight:700;
-  text-align:center;
-  background: linear-gradient(90deg,#ffffff,#a5b4fc);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+font-size:36px;
+font-weight:700;
+text-align:center;
+
+background: linear-gradient(90deg,#ffffff,#6366f1,#a855f7);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
 .subtitle{
-  text-align:center;
-  color:#cbd5e1;
-  font-size:14px;
-  margin-bottom:25px;
+text-align:center;
+color:#cbd5e1;
+font-size:14px;
+margin-bottom:25px;
 }
 
-
+/* ============================= */
+/* INPUT FIELDS */
+/* ============================= */
 .form-control{
-  background: rgba(255,255,255,0.15);
-  border:1px solid rgba(255,255,255,0.3);
-  color:white;
-  border-radius:14px;
-  padding:12px;
+background: rgba(255,255,255,0.15);
+border:1px solid rgba(255,255,255,0.3);
+color:white;
+border-radius:14px;
+padding:12px;
 }
 
 .form-control:focus{
-  background: rgba(255,255,255,0.2);
-  border-color:#6366f1;
-  box-shadow:0 0 15px rgba(99,102,241,0.5);
-  color:white;
+background: rgba(255,255,255,0.2);
+border-color:#6366f1;
+box-shadow:0 0 15px rgba(99,102,241,0.5);
+color:white;
 }
 
+/* placeholder */
+::placeholder {
+color: rgba(255,255,255,0.7);
+}
 
+/* ============================= */
+/* BUTTON */
+/* ============================= */
 .btn-login{
-  width:100%;
-  padding:13px;
-  margin-top:15px;
-  border-radius:14px;
-  font-weight:600;
-  font-size:16px;
+width:100%;
+padding:13px;
+margin-top:15px;
+border-radius:14px;
+font-weight:600;
+font-size:16px;
 
-  background: linear-gradient(135deg,#4f46e5,#7c3aed);
-  border:none;
-  color:white;
+background: linear-gradient(135deg,#6366f1,#a855f7);
+border:none;
+color:white;
 
-  box-shadow:0 10px 30px rgba(79,70,229,0.5);
-  transition:.3s ease;
+transition:.3s;
 }
 
 .btn-login:hover{
-  transform:translateY(-4px);
-  box-shadow:0 15px 45px rgba(79,70,229,0.7);
+transform:translateY(-3px);
+box-shadow:0 10px 30px rgba(99,102,241,0.5);
 }
 
+/* ============================= */
+/* ALERT */
+/* ============================= */
 .alert{
-  border-radius:12px;
-  background: rgba(255,255,255,0.15);
-  border:1px solid rgba(255,255,255,0.3);
-  color:white;
+border-radius:12px;
+background: rgba(255,255,255,0.15);
+border:none;
+color:white;
 }
 
+/* ============================= */
+/* ANIMATION */
+/* ============================= */
 @keyframes fadeIn{
-  from{opacity:0; transform:translateY(25px);}
-  to{opacity:1; transform:translateY(0);}
+from{opacity:0; transform:translateY(25px);}
+to{opacity:1; transform:translateY(0);}
 }
 
 </style>

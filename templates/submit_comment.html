@@ -8,136 +8,166 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <style>
+/* ============================= */
+/* GLOBAL BACKGROUND (SAME THEME) */
+/* ============================= */
+body {
+margin: 0;
+padding: 0;
+min-height: 100vh;
 
+font-family: "Inter","Segoe UI",sans-serif;
+color: white;
 
-body{
-  font-family: "Inter","Segoe UI",sans-serif;
-  margin:0;
-  padding:0;
-  min-height:100vh;
+background:
+radial-gradient(circle at 20% 30%, rgba(99,102,241,0.25), transparent 40%),
+radial-gradient(circle at 80% 70%, rgba(168,85,247,0.25), transparent 40%),
+radial-gradient(circle at 50% 50%, rgba(14,165,233,0.15), transparent 60%),
+linear-gradient(135deg, #020617, #0f172a, #020617);
 
-  background:
-    radial-gradient(circle at 20% 20%, #092d47 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, #042940 0%, transparent 40%),
-    linear-gradient(135deg,#11566b,#1e293b);
-
-  background-attachment: fixed;
-  color:#fff;
+background-attachment: fixed;
 }
 
+/* ============================= */
+/* NAVBAR */
+/* ============================= */
 .navbar{
-  background: rgba(255,255,255,0.08) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-bottom:1px solid rgba(255,255,255,0.2);
-  box-shadow:0 8px 30px rgba(0,0,0,0.5);
+background: rgba(255,255,255,0.08) !important;
+backdrop-filter: blur(18px);
+border-bottom:1px solid rgba(255,255,255,0.2);
+box-shadow:0 8px 30px rgba(0,0,0,0.5);
 }
 
 .navbar-brand{
-  font-weight:700;
-  background: linear-gradient(90deg,#fff,#c7d2fe);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+font-weight:700;
+background: linear-gradient(90deg,#ffffff,#6366f1,#a855f7);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
-
+/* ============================= */
+/* CONTAINER */
+/* ============================= */
 .app-container{
-  margin-top:120px;
-  margin-bottom:60px;
+margin-top:120px;
+margin-bottom:60px;
 }
 
+/* ============================= */
+/* GLASS CARD */
+/* ============================= */
 .app-card{
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+background: rgba(255,255,255,0.05);
+backdrop-filter: blur(25px);
 
-  border-radius:24px;
-  padding:35px;
+border-radius:24px;
+padding:35px;
 
-  border:1px solid rgba(255,255,255,0.25);
+border:1px solid rgba(255,255,255,0.1);
 
-  box-shadow:
-    0 20px 60px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.3);
+box-shadow:
+0 20px 80px rgba(0,0,0,0.7),
+inset 0 1px 0 rgba(255,255,255,0.1);
 
-  animation: fadeIn .6s ease;
+animation: fadeIn .6s ease;
 }
 
-
+/* ============================= */
+/* HEADINGS */
+/* ============================= */
 h3{
-  background: linear-gradient(90deg,#ffffff,#a5b4fc);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+font-size:32px;
+font-weight:700;
+
+background: linear-gradient(90deg,#ffffff,#6366f1,#a855f7);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
 }
 
+/* ============================= */
+/* GLASS BOX (NO WHITE BG) */
+/* ============================= */
 .glass-box{
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(15px);
-  border-radius:16px;
-  padding:18px;
-  margin-bottom:18px;
-  border:1px solid rgba(255,255,255,0.2);
+background: rgba(255,255,255,0.08);
+backdrop-filter: blur(15px);
+border-radius:16px;
+padding:18px;
+margin-bottom:18px;
+border:1px solid rgba(255,255,255,0.15);
 }
 
-
+/* ============================= */
+/* INPUT FIELDS */
+/* ============================= */
 .form-control{
-  background: rgba(255,255,255,0.15);
-  border:1px solid rgba(255,255,255,0.3);
-  color:#fff;
-  border-radius:14px;
-  padding:12px;
+background: rgba(255,255,255,0.15);
+border:1px solid rgba(255,255,255,0.3);
+color:#fff;
+border-radius:14px;
+padding:12px;
 }
 
 .form-control:focus{
-  background: rgba(255,255,255,0.2);
-  border-color:#6366f1;
-  box-shadow:0 0 15px rgba(99,102,241,0.5);
-  color:#fff;
+background: rgba(255,255,255,0.2);
+border-color:#6366f1;
+box-shadow:0 0 15px rgba(99,102,241,0.5);
+color:#fff;
 }
 
 textarea.form-control{
-  resize:none;
+resize:none;
 }
 
+/* placeholder color */
+::placeholder {
+color: rgba(255,255,255,0.7);
+}
 
+/* ============================= */
+/* RADIO BUTTON */
+/* ============================= */
 input[type="radio"]{
-  accent-color:#6366f1;
+accent-color:#6366f1;
 }
 
-
+/* ============================= */
+/* BUTTONS */
+/* ============================= */
 .btn-primary{
-  background: linear-gradient(135deg,#4f46e5,#7c3aed);
-  border:none;
-  border-radius:14px;
-  padding:12px 22px;
-  font-weight:600;
-  box-shadow:0 10px 30px rgba(79,70,229,0.5);
-  transition:.3s ease;
+background: linear-gradient(135deg,#6366f1,#a855f7);
+border:none;
+border-radius:14px;
+padding:12px 22px;
+font-weight:600;
+
+transition:.3s;
 }
 
 .btn-primary:hover{
-  transform:translateY(-4px);
-  box-shadow:0 15px 45px rgba(79,70,229,0.7);
+transform:translateY(-3px);
+box-shadow:0 10px 30px rgba(99,102,241,0.5);
 }
 
 .btn-outline-danger{
-  border-radius:14px;
-  padding:12px 22px;
-  border:1px solid rgba(255,255,255,0.4);
-  color:#fff;
-  background:rgba(255,255,255,0.1);
-  transition:.3s ease;
+border-radius:14px;
+padding:12px 22px;
+border:1px solid rgba(255,255,255,0.4);
+color:#fff;
+background:rgba(255,255,255,0.1);
+transition:.3s;
 }
 
 .btn-outline-danger:hover{
-  background:white;
-  color:#0f172a;
+background:white;
+color:#0f172a;
 }
 
-
+/* ============================= */
+/* ANIMATION */
+/* ============================= */
 @keyframes fadeIn{
-  from{opacity:0; transform:translateY(25px);}
-  to{opacity:1; transform:translateY(0);}
+from{opacity:0; transform:translateY(25px);}
+to{opacity:1; transform:translateY(0);}
 }
 
 </style>
@@ -159,16 +189,16 @@ input[type="radio"]{
 
         
         <div class="mt-2 mb-3 p-3 rounded" style="background:#f8f9fa;">
-            <strong>About this Draft:</strong>
-            <p class="text-muted">{{ about }}</p>
+            <strong style="color: #000000;">About this Draft:</strong>
+            <p class="text-muted" style="color: #000000;">{{ about }}</p>
         </div>
 
         
         <div class="p-3 rounded" style="background:#f8f9fa;">
-            <label class="fw-bold">Submitting as:</label><br>
-            <input type="radio" name="entityType" value="individual" checked onclick="toggleEntity()"> Individual  
+            <label class="fw-bold" style="color: #000000;">Submitting as:</label><br>
+            <input type="radio" name="entityType" value="individual" style="color: #000000;" onclick="toggleEntity()"> Individual  
             &nbsp;&nbsp;
-            <input type="radio" name="entityType" value="company" onclick="toggleEntity()"> Company
+            <input type="radio" name="entityType" value="company" style="color: #000000;" onclick="toggleEntity()"> Company
         </div>
 
         <form method="post" class="mt-3">
